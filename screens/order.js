@@ -4,18 +4,21 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
-  Modal
+  TextInput
 } from "react-native";
+import Modal from "react-native-modal";
 import { Table, TableWrapper, Row, Cell } from "react-native-table-component";
 import { MaterialIcons } from "@expo/vector-icons";
+
+import Note from "../components/note";
 
 export default class ExampleFour extends Component {
   constructor(props) {
     super(props);
     this.state = {
       ordered: false,
-      modalOpen: false,
+      modalNote: false,
+      valueNote: "",
       row: -1,
       tableHead: ["Dish", "Ordered", "Note", "Total", "Action"],
       tableData: [
@@ -39,11 +42,32 @@ export default class ExampleFour extends Component {
     if (type === "-" && this.state.ordered && this.state.row === index) {
       data[index][1]--;
       this.setState({
-        ordered: false
+        ordered: false,
+        row: -1
       });
     }
     this.setState({
       tableData: data
+    });
+  }
+
+  handleNote(index) {
+    if (index === this.state.row) {
+      this.setState({
+        modalNote: true
+      });
+    }
+  }
+
+  handeEnter() {
+    const data = this.state.tableData;
+    data[this.state.row][2] = this.state.valueNote;
+    this.setState({
+      tableData: data
+    });
+
+    this.setState({
+      modalNote: false
     });
   }
 
@@ -61,7 +85,7 @@ export default class ExampleFour extends Component {
             <Text style={styles.btnText}>-</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.handleAction(index, "-")}>
+        <TouchableOpacity onPress={() => this.handleNote(index)}>
           <View style={styles.btn}>
             <MaterialIcons style={styles.icon} name="note" color="white" />
           </View>
@@ -71,6 +95,22 @@ export default class ExampleFour extends Component {
 
     return (
       <View style={styles.container}>
+        <Modal isVisible={this.state.modalNote}>
+          <TextInput
+            multiline
+            style={styles.input}
+            placeholder="Note ..."
+            onChangeText={val => this.setState({ valueNote: val })}
+          />
+          <TouchableOpacity
+            onPress={() => this.handeEnter(this.state.valueNote)}
+          >
+            <View style={styles.button}>
+              <Text>Enter</Text>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
         <Table borderStyle={{ borderColor: "transparent" }}>
           <Row
             data={state.tableHead}
@@ -138,7 +178,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 4,
-    borderColor: "rgba(0, 0, 0, 0.1)",
+    // borderColor: "rgba(0, 0, 0, 0.1)",
     margin: 0
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    fontSize: 18,
+    borderRadius: 6,
+    color: "white"
+  },
+  button: {
+    backgroundColor: "lightblue",
+    padding: 12,
+    margin: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    borderColor: "rgba(0, 0, 0, 0.1)"
   }
 });
